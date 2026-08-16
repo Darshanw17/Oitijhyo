@@ -1,0 +1,25 @@
+/* Fit the portrait as a complete editorial image on wider displays. */
+.hero {
+  background: #150d0b;
+}
+
+.hero > img {
+  position: absolute;
+  right: 0;
+  width: 46%;
+  height: 100%;
+  object-fit: contain;
+  object-position: right center;
+}
+
+.hero-shade {
+  background: linear-gradient(90deg, rgba(21, 13, 11, .32) 0%, rgba(21, 13, 11, .15) 58%, rgba(21, 13, 11, 0) 100%);
+}
+
+@media (max-width: 850px) {
+  .hero > img {
+    width: 100%;
+    object-fit: cover;
+    object-position: 66% top;
+  }
+}

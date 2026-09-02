@@ -1,0 +1,106 @@
+/* Fit the portrait as a complete editorial image on wider displays. */
+.hero {
+  background: #150d0b;
+}
+
+.hero > img {
+  position: absolute;
+  right: 0;
+  width: 46%;
+  height: 100%;
+  object-fit: contain;
+  object-position: right center;
+}
+
+.hero-shade {
+  background: linear-gradient(90deg, rgba(21, 13, 11, .32) 0%, rgba(21, 13, 11, .15) 58%, rgba(21, 13, 11, 0) 100%);
+}
+
+@media (max-width: 850px) {
+  .hero > img {
+    width: 100%;
+    object-fit: cover;
+    object-position: 66% top;
+  }
+}
+
+/* A lighter, more editorial palette that lets the textile colours stand out. */
+:root {
+  --paper: #fffaf3;
+  --cream: #f4e7d7;
+  --line: #dfc9ad;
+  --ink: #2c211d;
+  --wine: #6b2630;
+  --gold: #b78345;
+}
+
+body {
+  background:
+    radial-gradient(circle at 5% 12%, rgba(218, 172, 106, .16), transparent 24rem),
+    radial-gradient(circle at 94% 42%, rgba(123, 43, 52, .08), transparent 27rem),
+    var(--paper);
+}
+
+header {
+  background: rgba(255, 250, 243, .92);
+  backdrop-filter: blur(14px);
+  border-bottom-color: rgba(122, 73, 47, .13);
+}
+
+.intro,
+.products,
+.values {
+  background: linear-gradient(135deg, rgba(255, 255, 255, .42), rgba(247, 229, 209, .26));
+}
+
+.collections,
+.journal {
+  background:
+    linear-gradient(rgba(250, 240, 227, .92), rgba(250, 240, 227, .92)),
+    repeating-linear-gradient(45deg, rgba(158, 93, 56, .07) 0 1px, transparent 1px 12px);
+}
+
+.story { background: #efe1d1; }
+
+.newsletter {
+  background:
+    radial-gradient(circle at 82% 20%, rgba(201, 144, 75, .25), transparent 20rem),
+    linear-gradient(120deg, #32211f, #52232a 58%, #713239);
+}
+
+footer { background: #f6eadb; }
+
+.logo-brand { height: 62px; justify-content: center; }
+.logo-window { display: block; width: 154px; height: 62px; overflow: hidden; position: relative; }
+.logo-window img { display: block; width: 154px; height: auto; transform: translateY(-10px); }
+
+@media (max-width: 520px) {
+  .logo-window { width: 132px; height: 54px; }
+  .logo-window img { width: 132px; transform: translateY(-8px); }
+}
+
+/* Motion stays transform/opacity-only and is disabled for reduced-motion users. */
+.app-shell :focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.btn, .quick button, .nav-tools button, .heart { transition: transform .22s ease, background-color .22s ease, color .22s ease, box-shadow .22s ease; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(64, 17, 22, .16); }
+.quick button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; }
+.product-image::after { border: 0; border-radius: 0; width: 100%; height: 100%; top: 0; left: 0; transform: none; opacity: 0; transition: opacity .42s ease, transform .5s ease; }
+.p1::after { background: linear-gradient(135deg, #46171d, #d7a46e 55%, #eee0d0); }
+.p2::after { background: linear-gradient(135deg, #f0d9bb, #8a202b 53%, #48201d); }
+.p3::after { background: linear-gradient(135deg, #b3a079, #534537 54%, #ead7b3); }
+.p4::after { background: linear-gradient(135deg, #551c24, #d9a864 55%, #f2e4d1); }
+.product-card:hover .product-image::after { opacity: 1; transform: scale(1.025); }
+.product-card:hover .product-info { transform: translateY(-4px); }
+.product-info { transition: transform .25s ease; }
+.heart { display: grid; place-items: center; line-height: 1; }
+.heart:hover { transform: scale(1.14); }
+.mobile-menu svg, .nav-tools svg, .close svg { stroke-width: 1.6; }
+
+@media (max-width: 850px) {
+  header nav.mobile-open { display: flex; position: absolute; top: 100%; left: 0; right: 0; padding: 22px 7vw; flex-direction: column; gap: 19px; background: #fffaf3; border-bottom: 1px solid var(--line); box-shadow: 0 15px 25px rgba(44, 33, 29, .09); }
+  .product-card:hover .product-image::after { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

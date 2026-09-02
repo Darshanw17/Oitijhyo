@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
-import logo from '../assets/oitijhyo-logo-source.jpeg';
-import hero from '../assets/oitijhyo-hero.png';
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ArrowRight, Heart, Menu, Search, ShoppingBag, UserRound, X } from 'lucide-react';
+import logo from './assets/oitijhyo-logo-source.jpeg';
+import hero from './assets/oitijhyo-hero.png';
 
 const products = [
   { name: 'Handwoven Bengal Tant', type: 'Cotton · Bengal', price: 3490, tag: 'Handwoven', imageClass: 'p1' },
@@ -11,41 +14,55 @@ const products = [
 const money = (value) => `₹${value.toLocaleString('en-IN')}`;
 const Brand = () => <a className="brand logo-brand" href="#home" aria-label="Oitijhyo home"><span className="logo-window"><img src={logo} alt="Oitijhyo Saree Boutique logo" /></span></a>;
 const Heading = ({ eyebrow, children, action }) => <div className="section-head"><div><p className="eyebrow">{eyebrow}</p><h2>{children}</h2></div>{action}</div>;
+gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
+  const appRef = useRef(null);
   const [bag, setBag] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [bagOpen, setBagOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [toast, setToast] = useState('');
   const [compact, setCompact] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => { const scroll = () => setCompact(window.scrollY > 70); window.addEventListener('scroll', scroll); return () => window.removeEventListener('scroll', scroll); }, []);
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(''), 2400); return () => clearTimeout(timer); }, [toast]);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const context = gsap.context(() => {
+      gsap.from('.hero > img', { scale: 1.07, duration: 1.4, ease: 'power3.out' });
+      gsap.from('.hero-copy > *', { y: 20, autoAlpha: 0, duration: .8, stagger: .12, delay: .18, ease: 'power3.out' });
+      gsap.utils.toArray('.scroll-reveal').forEach((section) => {
+        gsap.from(section, { y: 30, autoAlpha: 0, duration: .8, ease: 'power2.out', scrollTrigger: { trigger: section, start: 'top 84%', once: true } });
+      });
+    }, appRef);
+    return () => context.revert();
+  }, []);
   const add = (item) => { setBag((current) => [...current, item]); setToast(`${item.name} added to your bag`); };
   const toggleWish = (item) => { const exists = wishlist.some(({ name }) => name === item.name); setWishlist((current) => exists ? current.filter(({ name }) => name !== item.name) : [...current, item]); setToast(exists ? 'Removed from your wishlist' : 'Saved to your wishlist'); };
   const closePanels = () => { setBagOpen(false); setSearchOpen(false); };
   const subtotal = bag.reduce((total, item) => total + item.price, 0);
 
-  return <>
+  return <div className="app-shell" ref={appRef}>
     <div className="announcement"><span>Authentic Indian Sarees</span><i /><span>Handpicked with Heritage</span><i /><span>Complimentary shipping over ₹2,000</span></div>
-    <header id="topbar" className={compact ? 'compact' : ''}><button className="mobile-menu" aria-label="Open menu">☰</button><Brand /><nav><a className="active" href="#home">Home</a><a href="#collections">Shop</a><a href="#collections">Collections</a><a href="#story">Our Story</a><a href="#craft">Craft & Heritage</a><a href="#journal">Journal</a></nav><div className="nav-tools"><button onClick={() => setSearchOpen(true)} aria-label="Search">⌕</button><button aria-label="Account">♙</button><button aria-label="Wishlist">♡<b>{wishlist.length}</b></button><button onClick={() => setBagOpen(true)} aria-label="Shopping bag">▱<b>{bag.length}</b></button></div></header>
+    <header id="topbar" className={compact ? 'compact' : ''}><button className="mobile-menu" onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={mobileOpen}><Menu size={20} /></button><Brand /><nav className={mobileOpen ? 'mobile-open' : ''} onClick={() => setMobileOpen(false)}><a className="active" href="#home">Home</a><a href="#collections">Shop</a><a href="#collections">Collections</a><a href="#story">Our Story</a><a href="#craft">Craft & Heritage</a><a href="#journal">Journal</a></nav><div className="nav-tools"><button onClick={() => setSearchOpen(true)} aria-label="Search"><Search size={17} /></button><button aria-label="Account"><UserRound size={17} /></button><button aria-label="Wishlist"><Heart size={17} /><b>{wishlist.length}</b></button><button onClick={() => setBagOpen(true)} aria-label="Shopping bag"><ShoppingBag size={17} /><b>{bag.length}</b></button></div></header>
     <main id="home">
       <section className="hero"><img src={hero} alt="Woman wearing an ivory Bengal saree with a maroon border" /><div className="hero-shade" /><div className="hero-copy"><p className="eyebrow light">A modern expression of heritage</p><h1>Tradition,<br /><em>Woven Beautifully.</em></h1><p>Discover authentic sarees rooted in India's rich textile heritage, thoughtfully curated for the modern woman.</p><div className="actions"><a className="btn primary" href="#bestsellers">Explore Collection <span>→</span></a><a className="text-link light" href="#story">Discover our story <span>↗</span></a></div></div><div className="hero-note"><span>01 — 04</span><span>Scroll to discover</span></div></section>
-      <section className="intro"><p className="eyebrow">An ode to the hands that make</p><h2>Sarees with a sense<br />of <em>place.</em></h2><p className="intro-copy">We seek out the quiet beauty of Indian weaving traditions — pieces shaped by time, place, and the hands that know them best.</p><a className="text-link" href="#story">More about Oitijhyo <span>→</span></a></section>
+      <section className="intro scroll-reveal"><p className="eyebrow">An ode to the hands that make</p><h2>Sarees with a sense<br />of <em>place.</em></h2><p className="intro-copy">We seek out the quiet beauty of Indian weaving traditions — pieces shaped by time, place, and the hands that know them best.</p><a className="text-link" href="#story">More about Oitijhyo <ArrowRight size={15} /></a></section>
       <Collections />
-      <section className="products" id="bestsellers"><Heading eyebrow="Most considered pieces" action={<div className="product-nav"><button aria-label="Previous products">←</button><button aria-label="Next products">→</button></div>}>Loved by <em>Her</em></Heading><div className="product-grid">{products.map((item) => <article className="product-card" key={item.name}><div className={`product-image ${item.imageClass}`}><span className="badge">{item.tag}</span><button onClick={() => toggleWish(item)} className={`heart ${wishlist.some(({ name }) => name === item.name) ? 'liked' : ''}`} aria-label={`Add ${item.name} to wishlist`}>♡</button><div className="quick"><button onClick={() => add(item)}>Quick add</button></div></div><div className="product-info"><div><h3>{item.name}</h3><span>★★★★★</span></div><p>{item.type}</p><b>{money(item.price)} {item.old && <del>{money(item.old)}</del>}</b></div></article>)}</div></section>
+      <section className="products scroll-reveal" id="bestsellers"><Heading eyebrow="Most considered pieces" action={<div className="product-nav"><button aria-label="Previous products">←</button><button aria-label="Next products">→</button></div>}>Loved by <em>Her</em></Heading><div className="product-grid">{products.map((item) => <article className="product-card" key={item.name}><div className={`product-image ${item.imageClass}`}><span className="badge">{item.tag}</span><button onClick={() => toggleWish(item)} className={`heart ${wishlist.some(({ name }) => name === item.name) ? 'liked' : ''}`} aria-label={`Add ${item.name} to wishlist`}><Heart size={18} fill={wishlist.some(({ name }) => name === item.name) ? 'currentColor' : 'none'} /></button><div className="quick"><button onClick={() => add(item)}>Quick add <ArrowRight size={14} /></button></div></div><div className="product-info"><div><h3>{item.name}</h3><span>★★★★★</span></div><p>{item.type}</p><b>{money(item.price)} {item.old && <del>{money(item.old)}</del>}</b></div></article>)}</div></section>
       <Story />
       <section className="craft" id="craft"><p className="eyebrow">Made by hands. Passed through generations.</p><h2>Craft worth<br /><em>keeping close.</em></h2><div className="stats">{[[<>50<sup>+</sup></>, 'Artisan families'], [<>100<sup>%</sup></>, 'Handpicked pieces'], [<>6<sup>+</sup></>, 'Craft traditions'], ['Every piece', 'With a story']].map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div><small>Demo values — designed to be updated with verified sourcing information.</small></section>
       <Values /><Journal />
       <section className="newsletter"><div><p className="eyebrow light">A note in your inbox</p><h2>Stay woven into<br />our <em>story.</em></h2></div><form onSubmit={(event) => { event.preventDefault(); setToast('You’re woven into the Oitijhyo story.'); event.currentTarget.reset(); }}><label htmlFor="email">New collections, stories from artisans, and a little bit of Bengal.</label><div><input id="email" type="email" required placeholder="Your email address" /><button className="btn primary">Join Oitijhyo <span>→</span></button></div></form></section>
     </main>
     <Footer />
-    <aside className={`drawer ${bagOpen ? 'open' : ''}`} aria-hidden={!bagOpen}><div className="drawer-head"><h3>Your Bag <small>({bag.length})</small></h3><button onClick={closePanels} className="close" aria-label="Close bag">×</button></div><div className="bag-items">{bag.length ? bag.map((item, index) => <div className="bag-item" key={`${item.name}-${index}`}><div className="bag-thumb" /><div><h4>{item.name}</h4><p>{item.type}</p><b>{money(item.price)}</b></div><button onClick={() => setBag((current) => current.filter((_, position) => position !== index))} aria-label={`Remove ${item.name}`}>×</button></div>) : <p>Your bag is waiting for a story.</p>}</div><div className="drawer-foot"><div><span>Subtotal</span><b>{money(subtotal)}</b></div><button className="btn dark">Proceed to checkout <span>→</span></button></div></aside>
+    <aside className={`drawer ${bagOpen ? 'open' : ''}`} aria-hidden={!bagOpen}><div className="drawer-head"><h3>Your Bag <small>({bag.length})</small></h3><button onClick={closePanels} className="close" aria-label="Close bag"><X size={21} /></button></div><div className="bag-items">{bag.length ? bag.map((item, index) => <div className="bag-item" key={`${item.name}-${index}`}><div className="bag-thumb" /><div><h4>{item.name}</h4><p>{item.type}</p><b>{money(item.price)}</b></div><button onClick={() => setBag((current) => current.filter((_, position) => position !== index))} aria-label={`Remove ${item.name}`}>×</button></div>) : <p>Your bag is waiting for a story.</p>}</div><div className="drawer-foot"><div><span>Subtotal</span><b>{money(subtotal)}</b></div><button className="btn dark">Proceed to checkout <ArrowRight size={16} /></button></div></aside>
     <div id="overlay" className={bagOpen ? 'show' : ''} onClick={closePanels} />
-    <div className={`search-modal ${searchOpen ? 'open' : ''}`}><button onClick={closePanels} className="close" aria-label="Close search">×</button><p className="eyebrow">Find your saree</p><input autoFocus={searchOpen} placeholder="Try ‘Bengal cotton’ or ‘red saree’" /><div><span>Popular searches</span><button>Bengal cotton</button><button>Festive edit</button><button>Jamdani</button></div></div>
+    <div className={`search-modal ${searchOpen ? 'open' : ''}`} role="dialog" aria-modal="true" aria-label="Search sarees"><button onClick={closePanels} className="close" aria-label="Close search"><X size={21} /></button><p className="eyebrow">Find your saree</p><input autoFocus={searchOpen} placeholder="Try ‘Bengal cotton’ or ‘red saree’" /><div><span>Popular searches</span><button>Bengal cotton</button><button>Festive edit</button><button>Jamdani</button></div></div>
     <div id="toast" className={toast ? 'show' : ''}>{toast}</div>
-  </>;
+  </div>;
 }
 
 function Collections() { const cards = [['01', <>Bengal<br />Collection</>, 'Woven close to home', 'one'], ['02', 'Jamdani', 'Poetry in every thread', 'two'], ['03', <>Festive<br />Edit</>, 'For days worth remembering', 'three']]; return <section className="collections" id="collections"><Heading eyebrow="Curated from the loom" action={<a className="text-link" href="#bestsellers">View all collections <span>→</span></a>}>Threads of <em>Heritage</em></Heading><div className="collection-grid">{cards.map(([number, title, copy, className]) => <a className={`collection ${className}`} href="#bestsellers" key={number}><div><span>{number}</span><h3>{title}</h3><p>{copy}</p><b>Explore <em>→</em></b></div></a>)}</div></section>; }
